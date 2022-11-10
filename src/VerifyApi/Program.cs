@@ -1,7 +1,12 @@
+using VerifyApi.Data;
+using VerifyApi.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<VerifyApiDbContext>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryBase<>));
 
 var app = builder.Build();
 
