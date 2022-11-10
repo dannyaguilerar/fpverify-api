@@ -1,4 +1,4 @@
-namespace VerifyApi.Requests
+    namespace VerifyApi.Requests
 {
     public class BaseApiRequest 
     {

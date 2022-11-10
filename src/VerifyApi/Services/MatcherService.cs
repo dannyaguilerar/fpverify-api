@@ -7,24 +7,22 @@ namespace VerifyApi.Services
         {
             if (request.ProbeBase64 == null)
             {
-                return new VerifyResponse(VerifyResult.NoMatch, "Invalid probe image");
+                return new VerifyResponse(VerifyResult.NoMatch, 0, "Invalid probe image");
             }
 
             if (request.CandidateBase64 == null)
             {
-                return new VerifyResponse(VerifyResult.NoMatch, "Invalid candidate image");
+                return new VerifyResponse(VerifyResult.NoMatch, 0, "Invalid candidate image");
             }
             try
-            {
-                var options = new FingerprintImageOptions { Dpi = 500 };
-                
+            {   
                 var probeData = Convert.FromBase64String(request.ProbeBase64);
-                var probeImage = Image.Load(probeData);
-                var probeTemplate = new FingerprintTemplate(new FingerprintImage(probeImage.Width, probeImage.Height, probeData, options));
+                var probeImage = new FingerprintImage(probeData);
+                var probeTemplate = new FingerprintTemplate(probeImage);
 
                 var candidateData = Convert.FromBase64String(request.CandidateBase64);
-                var candidateImage = Image.Load(candidateData);
-                var candidateTemplate = new FingerprintTemplate(new FingerprintImage(candidateImage.Width, candidateImage.Height, candidateData, options));
+                var candidateImage = new FingerprintImage(candidateData);
+                var candidateTemplate = new FingerprintTemplate(candidateImage);
 
                 var matcher = new FingerprintMatcher(probeTemplate);
                 double score = matcher.Match(candidateTemplate);
@@ -42,16 +40,16 @@ namespace VerifyApi.Services
 
                 if(score >= threshold)
                 {
-                    return new VerifyResponse(VerifyResult.Match);
+                    return new VerifyResponse(VerifyResult.Match, (int)score, "MATCH");
                 }
                 else
                 {
-                    return new VerifyResponse(VerifyResult.NoMatch);
+                    return new VerifyResponse(VerifyResult.NoMatch, (int) score, "NOT MATCH");
                 }
             }
             catch (Exception ex)
             {
-                return new VerifyResponse(VerifyResult.Undefined, $"Error: {ex.Message}");
+                return new VerifyResponse(VerifyResult.Undefined, 0, $"Error: {ex.Message}");
             }
         }
     }
